@@ -2,6 +2,10 @@
 #include <ncurses.h>
 #include "blocks.h"
 
+enum { square_width = 2 };
+
+static const char square[] = "[]";
+
 static int blocks[blocks_count][tetromino][tetromino][2] = {
     { /* I */
         {{-2, -1}, {-1, -1}, {0, -1}, {1, -1}},
@@ -69,21 +73,23 @@ void block_delete(block_t block)
     free(block.squares);
 }
 
-static void block_print(block_t block, chtype ch)
+static void block_print(block_t block, const char *str)
 {
     int i;
-    for(i = 0; i < tetromino; i++)
-        mvaddch(block.squares[i][1] + 2, block.squares[i][0] + 2, ch);
+    for(i = 0; i < tetromino; i++) {
+        move(block.squares[i][1] + 2, (block.squares[i][0] + 2) * square_width);
+        addstr(str);
+    }
 }
 
 void block_show(block_t block)
 {
-    block_print(block, '*');
+    block_print(block, square);
 }
 
 void block_hide(block_t block)
 {
-    block_print(block, ' ');
+    block_print(block, "  ");
 }
 
 void block_rotate(block_t *block, int clockwise)
