@@ -1,23 +1,10 @@
-#include <ncurses.h>
-#include "blocks.h"
+#include <stdlib.h>
+#include <time.h>
+#include "tetris.h"
 
 int main()
 {
-    initscr();
-    cbreak();
-    curs_set(0);
-    noecho();
-
-    for(;;) {
-        block_t block;
-        block_new(&block);
-        block_show(block);
-        refresh();
-        napms(1000);
-        block_hide(block);
-        block_delete(block);
-    }
-
-    endwin();
+    srand(time(NULL));
+    play_tetris();
     return 0;
 }
