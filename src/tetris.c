@@ -32,12 +32,12 @@ void play_tetris()
             break;
         case KEY_UP:
             block_hide(block);
-            block_rotate(block, 1);
+            block_rotate(&block, 1);
             block_show(block);
             break;
         case KEY_DOWN:
             block_hide(block);
-            block_rotate(block, 0);
+            block_rotate(&block, 0);
             block_show(block);
             break;
         }
