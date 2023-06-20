@@ -4,49 +4,38 @@
 
 enum { delay_duration = 500 };
 
+enum { field_height = 20, field_width = 10 };
+
+void field_window_initialize(WINDOW **field_window)
+{
+  int x, y;
+  clear();
+
+  x = (COLS - field_width * 2) / 2 - 1;
+  y = (LINES - field_height) / 2;
+
+  mvvline(y, x - 1, '<', field_height + 1);
+  mvvline(y, x + field_width * 2, '>', field_height + 1);
+  refresh();
+
+  *field_window = newwin(field_height + 1, field_width * 2, y, x);
+  wborder(*field_window, '!', '!', ' ', '=', '!', '!', '!', '!');
+  wrefresh(*field_window);
+}
+
 void play_tetris()
 {
-  int ch, create_new_block = 1;
-  block_t block;
+  WINDOW *field_window;
 
   initscr();
   cbreak();
   curs_set(0);
   noecho();
 
-  keypad(stdscr, TRUE);
-  timeout(delay_duration);
-  for (;;) {
-    if (create_new_block) {
-      block_new(&block);
-      block_show(block);
-      refresh();
-      create_new_block = 0;
-    }
+  field_window_initialize(&field_window);
 
-    ch = getch();
-    switch (ch) {
-      case ' ':
-        create_new_block = 1;
-        break;
-      case KEY_UP:
-        block_hide(block);
-        block_rotate(&block, 1);
-        block_show(block);
-        break;
-      case KEY_DOWN:
-        block_hide(block);
-        block_rotate(&block, 0);
-        block_show(block);
-        break;
-    }
-
-    if (create_new_block) {
-      block_hide(block);
-      refresh();
-      block_delete(block);
-    }
-  }
+  keypad(field_window, TRUE);
+  wgetch(field_window);
 
   endwin();
 }
