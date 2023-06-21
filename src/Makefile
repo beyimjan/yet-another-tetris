@@ -6,7 +6,7 @@ LDFLAGS = -lncurses
 SRCS = $(filter-out main.c, $(wildcard *.c))
 OBJS = $(SRCS:.c=.o)
 
-PROG = tetriller
+PROG = tetris
 
 all: $(PROG)
 

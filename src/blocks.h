@@ -1,8 +1,7 @@
 #ifndef TETROMINOES_H_SENTRY
 #define TETROMINOES_H_SENTRY
 
-enum { blocks_count = 7 };
-enum { tetromino = 4 };
+#include <ncurses.h>
 
 typedef int (*block_squares_t)[2];
 typedef enum {
@@ -17,15 +16,15 @@ typedef enum {
 
 typedef struct {
   block_type_t type;
-  int angle;
+  int x, y, angle;
   block_squares_t squares;
 } block_t;
 
 void block_new(block_t *block);
 void block_delete(block_t block);
-void block_show(block_t block);
-void block_hide(block_t block);
+void block_show(WINDOW *win, block_t block);
+void block_hide(WINDOW *win, block_t block);
 
-void block_rotate(block_t *block, int clockwise);
+void block_rotate(WINDOW *win, block_t *block, int clockwise);
 
 #endif

@@ -52,5 +52,5 @@ Mkfile.old
 dkms.conf
 
 # Build files
-tetriller
+tetris
 deps.mk

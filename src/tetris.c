@@ -1,14 +1,12 @@
 #include "tetris.h"
 #include <ncurses.h>
 #include "blocks.h"
+#include "constants.h"
 
-enum { delay_duration = 500 };
-
-enum { field_height = 20, field_width = 10 };
-
-void field_window_initialize(WINDOW **field_window)
+static void field_window_initialize(WINDOW **field_window)
 {
   int x, y;
+
   clear();
 
   x = (COLS - field_width * 2) / 2 - 1;
@@ -27,6 +25,10 @@ void play_tetris()
 {
   WINDOW *field_window;
 
+  int field[field_height][field_width] = {0};
+  int ch, create_new_block = 1;
+  block_t block;
+
   initscr();
   cbreak();
   curs_set(0);
@@ -35,7 +37,28 @@ void play_tetris()
   field_window_initialize(&field_window);
 
   keypad(field_window, TRUE);
-  wgetch(field_window);
+  for (;;) {
+    if (create_new_block) {
+      block_new(&block);
+      block_show(field_window, block);
+      create_new_block = 0;
+    }
+
+    ch = wgetch(field_window);
+    switch (ch) {
+      case ' ':
+        block_hide(field_window, block);
+        block_delete(block);
+        create_new_block = 1;
+        break;
+      case KEY_UP:
+        block_rotate(field_window, &block, 1);
+        break;
+      case KEY_DOWN:
+        block_rotate(field_window, &block, 0);
+        break;
+    }
+  }
 
   endwin();
 }

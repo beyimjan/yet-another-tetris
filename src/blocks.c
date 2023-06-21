@@ -1,8 +1,7 @@
 #include "blocks.h"
 #include <ncurses.h>
 #include <stdlib.h>
-
-enum { square_width = 2 };
+#include "constants.h"
 
 static const char square[] = "[]";
 
@@ -55,6 +54,8 @@ static void block_squares_copy(block_squares_t dest, block_squares_t src)
 void block_new(block_t *block)
 {
   block->type = rand() % blocks_count;
+  block->x = (field_width - tetromino) / 2;
+  block->y = 0;
   block->angle = 0;
   block->squares = malloc(tetromino * sizeof(*block->squares));
   block_squares_copy(block->squares, blocks[block->type][block->angle]);
@@ -65,27 +66,31 @@ void block_delete(block_t block)
   free(block.squares);
 }
 
-static void block_print(block_t block, const char *str)
+static void block_print(WINDOW *win, block_t block, const char *str)
 {
   int i;
   for (i = 0; i < tetromino; i++) {
-    move(block.squares[i][1] + 2, (block.squares[i][0] + 2) * square_width);
-    addstr(str);
+    wmove(win, block.y + block.squares[i][1] + 2,
+          (block.x + block.squares[i][0] + 2) * square_width);
+    waddstr(win, str);
   }
+  wrefresh(win);
 }
 
-void block_show(block_t block)
+void block_show(WINDOW *win, block_t block)
 {
-  block_print(block, square);
+  block_print(win, block, square);
 }
 
-void block_hide(block_t block)
+void block_hide(WINDOW *win, block_t block)
 {
-  block_print(block, "  ");
+  block_print(win, block, "  ");
 }
 
-void block_rotate(block_t *block, int clockwise)
+void block_rotate(WINDOW *win, block_t *block, int clockwise)
 {
+  block_hide(win, *block);
+
   if (clockwise) {
     block->angle++;
     if (block->angle == tetromino)
@@ -96,5 +101,8 @@ void block_rotate(block_t *block, int clockwise)
     if (block->angle == -1)
       block->angle = tetromino - 1;
   }
+
   block_squares_copy(block->squares, blocks[block->type][block->angle]);
+
+  block_show(win, *block);
 }
