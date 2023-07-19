@@ -91,6 +91,8 @@ void block_hide(WINDOW *win, block_t block)
 
 void block_rotate(WINDOW *win, block_t *block, int clockwise)
 {
+  int i, old_angle = block->angle;
+
   block_hide(win, *block);
 
   if (clockwise) {
@@ -105,6 +107,15 @@ void block_rotate(WINDOW *win, block_t *block, int clockwise)
   }
 
   block_squares_copy(block->squares, blocks[block->type][block->angle]);
+  for (i = 0; i < tetromino; i++) {
+    if (block->y + block->squares[i][1] >= field_height ||
+        block->x + block->squares[i][0] < 0 ||
+        block->x + block->squares[i][0] >= field_width) {
+      block->angle = old_angle;
+      block_squares_copy(block->squares, blocks[block->type][block->angle]);
+      break;
+    }
+  }
 
   block_show(win, *block);
 }
