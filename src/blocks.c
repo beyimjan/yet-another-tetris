@@ -145,19 +145,21 @@ void block_move(WINDOW *win, block_t *block, int x, int y)
 
 int block_move_down(WINDOW *win, block_t *block)
 {
-  int i, landed = 0;
+  int i, elapsed_time, landed = 0;
 
   block_move(win, block, 0, 1);
 
-  if (milliseconds_elapsed(&block->moved_down_at) >= drop_delay) {
-    for (i = 0; i < tetromino; i++) {
-      if (block->y + block->squares[i][1] == field_height - 1) {
-        landed = 1;
-        break;
-      }
+  for (i = 0; i < tetromino; i++) {
+    if (block->y + block->squares[i][1] == field_height - 1) {
+      landed = 1;
+      break;
     }
   }
-  gettimeofday(&block->moved_down_at, NULL);
 
-  return landed;
+  elapsed_time = milliseconds_elapsed(&block->moved_down_at);
+  if (!landed) {
+    gettimeofday(&block->moved_down_at, NULL);
+  }
+
+  return landed && elapsed_time >= drop_delay;
 }
