@@ -23,11 +23,47 @@ static void field_window_initialize(WINDOW **field_window)
   wrefresh(*field_window);
 }
 
-void field_land_block(field_t field, const block_t block)
+static void field_land_block(field_t field, const block_t block)
 {
   int i;
   for (i = 0; i < tetromino; i++)
     field[block.y + block.squares[i][1]][block.x + block.squares[i][0]] = 1;
+}
+
+static void remove_completed_lines(WINDOW *win, field_t field, block_t block)
+{
+  int i, j, k, completed_lines = 0;
+
+  for (i = 0; i < field_height; i++) {
+    for (j = 0; j < field_width; j++) {
+      if (!field[i][j])
+        break;
+    }
+    if (j == field_width) {
+      completed_lines++;
+      if (i == 0) {
+        for (j = 0; j < field_width; j++)
+          field[i][j] = 0;
+      }
+      else {
+        for (k = i; k > 0; k--)
+          for (j = 0; j < field_width; j++)
+            field[k][j] = field[k - 1][j];
+      }
+    }
+  }
+
+  if (completed_lines) {
+    wclear(win);
+    wborder(win, '!', '!', ' ', '=', '!', '!', '!', '!');
+    block_show(win, block);
+    for (i = 0; i < field_height; i++) {
+      for (j = 0; j < field_width; j++) {
+        if (field[i][j])
+          mvwprintw(win, i, j * 2 + 1, "[]");
+      }
+    }
+  }
 }
 
 void play_tetris()
@@ -84,6 +120,8 @@ void play_tetris()
 
     if (move_down_due_to_delay || ch == KEY_DOWN || ch == ERR)
       did_block_land = block_move_down(field_window, field, &block);
+
+    remove_completed_lines(field_window, field, block);
   }
 
   endwin();
