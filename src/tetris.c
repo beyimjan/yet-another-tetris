@@ -27,7 +27,7 @@ void play_tetris()
   WINDOW *field_window;
 
   int field[field_height][field_width] = {0};
-  int ch, move_down_due_to_delay, create_new_block = 1;
+  int ch, move_down_due_to_delay, did_block_land = 0, create_new_block = 1;
   block_t block;
 
   initscr();
@@ -40,6 +40,9 @@ void play_tetris()
   keypad(field_window, TRUE);
   wtimeout(field_window, drop_delay);
   for (;;) {
+    if (did_block_land)
+      create_new_block = 1;
+
     if (create_new_block) {
       block_new(&block);
       block_show(field_window, block);
@@ -58,7 +61,10 @@ void play_tetris()
     switch (ch) {
       case ERR:
       case KEY_DOWN:
-        block_move_down(field_window, &block);
+        did_block_land = block_move_down(field_window, &block);
+        break;
+      case KEY_UP:
+        block_rotate(field_window, &block, 0);
         break;
       case ' ':
         block_rotate(field_window, &block, 1);
@@ -72,7 +78,7 @@ void play_tetris()
     }
 
     if (move_down_due_to_delay)
-      block_move_down(field_window, &block);
+      did_block_land = block_move_down(field_window, &block);
   }
 
   endwin();

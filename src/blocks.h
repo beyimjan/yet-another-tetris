@@ -29,6 +29,7 @@ void block_hide(WINDOW *win, block_t block);
 
 void block_rotate(WINDOW *win, block_t *block, int clockwise);
 void block_move(WINDOW *win, block_t *block, int x, int y);
-void block_move_down(WINDOW *win, block_t *block);
+
+int block_move_down(WINDOW *win, block_t *block);
 
 #endif
