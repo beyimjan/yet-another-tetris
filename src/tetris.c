@@ -27,7 +27,8 @@ static void field_land_block(field_t field, const block_t block)
 {
   int i;
   for (i = 0; i < tetromino; i++)
-    field[block.y + block.squares[i][1]][block.x + block.squares[i][0]] = 1;
+    if (block.y + block.squares[i][1] >= 0)
+      field[block.y + block.squares[i][1]][block.x + block.squares[i][0]] = 1;
 }
 
 static void remove_completed_lines(WINDOW *win, field_t field, block_t block)
@@ -72,6 +73,7 @@ void play_tetris()
 
   int field[field_height][field_width] = {0};
   int ch, move_down_due_to_delay, did_block_land = 0, create_new_block = 1;
+  int i, game_over = 0;
   block_t block;
 
   initscr();
@@ -84,6 +86,13 @@ void play_tetris()
   keypad(field_window, TRUE);
   wtimeout(field_window, drop_delay);
   for (;;) {
+    if (game_over) {
+      mvprintw(0, (COLS - 10) / 2, "Game Over!");
+      refresh();
+      napms(2000);
+      break;
+    }
+
     if (did_block_land) {
       field_land_block(field, block);
       block_delete(block);
@@ -93,6 +102,14 @@ void play_tetris()
 
     if (create_new_block) {
       block_new(&block);
+      for (i = 0; i < tetromino; i++)
+        if (block.y + block.squares[i][1] >= 0 &&
+            field[block.y + block.squares[i][1]]
+                 [block.x + block.squares[i][0]]) {
+          game_over = 1;
+        }
+      if (game_over)
+        continue;
       block_show(field_window, block);
       create_new_block = 0;
     }

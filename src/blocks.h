@@ -30,6 +30,7 @@ void block_hide(WINDOW *win, block_t block);
 
 void block_rotate(WINDOW *win, field_t field, block_t *block, int clockwise);
 void block_move(WINDOW *win, field_t field, block_t *block, int x, int y);
+
 int block_move_down(WINDOW *win, field_t field, block_t *block);
 
 #endif
