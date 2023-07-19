@@ -40,8 +40,11 @@ void play_tetris()
   keypad(field_window, TRUE);
   wtimeout(field_window, drop_delay);
   for (;;) {
-    if (did_block_land)
+    if (did_block_land) {
+      block_delete(block);
+      did_block_land = 0;
       create_new_block = 1;
+    }
 
     if (create_new_block) {
       block_new(&block);
@@ -50,19 +53,12 @@ void play_tetris()
     }
 
     ch = wgetch(field_window);
-    if (milliseconds_elapsed(&block.moved_down_at) >= drop_delay &&
-        ch != ERR && ch != KEY_DOWN) {
+    if (milliseconds_elapsed(&block.moved_down_at) >= drop_delay)
       move_down_due_to_delay = 1;
-    }
-    else {
+    else
       move_down_due_to_delay = 0;
-    }
 
     switch (ch) {
-      case ERR:
-      case KEY_DOWN:
-        did_block_land = block_move_down(field_window, &block);
-        break;
       case KEY_UP:
         block_rotate(field_window, &block, 0);
         break;
@@ -77,7 +73,7 @@ void play_tetris()
         break;
     }
 
-    if (move_down_due_to_delay)
+    if (move_down_due_to_delay || ch == KEY_DOWN || ch == ERR)
       did_block_land = block_move_down(field_window, &block);
   }
 
