@@ -91,7 +91,7 @@ void block_hide(WINDOW *win, block_t block)
   block_print(win, block, "  ");
 }
 
-void block_rotate(WINDOW *win, block_t *block, int clockwise)
+void block_rotate(WINDOW *win, field_t field, block_t *block, int clockwise)
 {
   int i, old_angle = block->angle;
 
@@ -112,7 +112,9 @@ void block_rotate(WINDOW *win, block_t *block, int clockwise)
   for (i = 0; i < tetromino; i++) {
     if (block->y + block->squares[i][1] >= field_height ||
         block->x + block->squares[i][0] < 0 ||
-        block->x + block->squares[i][0] >= field_width) {
+        block->x + block->squares[i][0] >= field_width ||
+        field[block->y + block->squares[i][1]]
+             [block->x + block->squares[i][0]]) {
       block->angle = old_angle;
       block_squares_copy(block->squares, blocks[block->type][block->angle]);
       break;
@@ -122,7 +124,7 @@ void block_rotate(WINDOW *win, block_t *block, int clockwise)
   block_show(win, *block);
 }
 
-void block_move(WINDOW *win, block_t *block, int x, int y)
+void block_move(WINDOW *win, field_t field, block_t *block, int x, int y)
 {
   int i, old_x = block->x, old_y = block->y;
 
@@ -133,7 +135,9 @@ void block_move(WINDOW *win, block_t *block, int x, int y)
   for (i = 0; i < tetromino; i++) {
     if (block->y + block->squares[i][1] >= field_height ||
         block->x + block->squares[i][0] < 0 ||
-        block->x + block->squares[i][0] >= field_width) {
+        block->x + block->squares[i][0] >= field_width ||
+        field[block->y + block->squares[i][1]]
+             [block->x + block->squares[i][0]]) {
       block->x = old_x;
       block->y = old_y;
       break;
@@ -143,14 +147,16 @@ void block_move(WINDOW *win, block_t *block, int x, int y)
   block_show(win, *block);
 }
 
-int block_move_down(WINDOW *win, block_t *block)
+int block_move_down(WINDOW *win, field_t field, block_t *block)
 {
   int i, elapsed_time, landed = 0;
 
-  block_move(win, block, 0, 1);
+  block_move(win, field, block, 0, 1);
 
   for (i = 0; i < tetromino; i++) {
-    if (block->y + block->squares[i][1] == field_height - 1) {
+    if (block->y + block->squares[i][1] == field_height - 1 ||
+        field[block->y + block->squares[i][1] + 1]
+             [block->x + block->squares[i][0]]) {
       landed = 1;
       break;
     }

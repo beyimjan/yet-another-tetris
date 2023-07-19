@@ -3,6 +3,7 @@
 #include "blocks.h"
 #include "clock.h"
 #include "constants.h"
+#include "field.h"
 
 static void field_window_initialize(WINDOW **field_window)
 {
@@ -20,6 +21,13 @@ static void field_window_initialize(WINDOW **field_window)
   *field_window = newwin(field_height + 1, field_width * 2 + 2, y, x);
   wborder(*field_window, '!', '!', ' ', '=', '!', '!', '!', '!');
   wrefresh(*field_window);
+}
+
+void field_land_block(field_t field, const block_t block)
+{
+  int i;
+  for (i = 0; i < tetromino; i++)
+    field[block.y + block.squares[i][1]][block.x + block.squares[i][0]] = 1;
 }
 
 void play_tetris()
@@ -41,6 +49,7 @@ void play_tetris()
   wtimeout(field_window, drop_delay);
   for (;;) {
     if (did_block_land) {
+      field_land_block(field, block);
       block_delete(block);
       did_block_land = 0;
       create_new_block = 1;
@@ -60,21 +69,21 @@ void play_tetris()
 
     switch (ch) {
       case KEY_UP:
-        block_rotate(field_window, &block, 0);
+        block_rotate(field_window, field, &block, 0);
         break;
       case ' ':
-        block_rotate(field_window, &block, 1);
+        block_rotate(field_window, field, &block, 1);
         break;
       case KEY_LEFT:
-        block_move(field_window, &block, -1, 0);
+        block_move(field_window, field, &block, -1, 0);
         break;
       case KEY_RIGHT:
-        block_move(field_window, &block, 1, 0);
+        block_move(field_window, field, &block, 1, 0);
         break;
     }
 
     if (move_down_due_to_delay || ch == KEY_DOWN || ch == ERR)
-      did_block_land = block_move_down(field_window, &block);
+      did_block_land = block_move_down(field_window, field, &block);
   }
 
   endwin();
