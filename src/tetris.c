@@ -37,6 +37,7 @@ void play_tetris()
   field_window_initialize(&field_window);
 
   keypad(field_window, TRUE);
+  wtimeout(field_window, drop_delay);
   for (;;) {
     if (create_new_block) {
       block_new(&block);
@@ -46,11 +47,12 @@ void play_tetris()
 
     ch = wgetch(field_window);
     switch (ch) {
-      case ' ':
-        block_rotate(field_window, &block, 1);
-        break;
+      case ERR:
       case KEY_DOWN:
         block_move(field_window, &block, 0, 1);
+        break;
+      case ' ':
+        block_rotate(field_window, &block, 1);
         break;
       case KEY_LEFT:
         block_move(field_window, &block, -1, 0);
