@@ -58,6 +58,7 @@ void block_new(block_t *block)
   block->y = 0;
   block->angle = 0;
   block->squares = malloc(tetromino * sizeof(*block->squares));
+  gettimeofday(&block->moved_down_at, NULL);
   block_squares_copy(block->squares, blocks[block->type][block->angle]);
 }
 
@@ -139,4 +140,10 @@ void block_move(WINDOW *win, block_t *block, int x, int y)
   }
 
   block_show(win, *block);
+}
+
+void block_move_down(WINDOW *win, block_t *block)
+{
+  gettimeofday(&block->moved_down_at, NULL);
+  block_move(win, block, 0, 1);
 }

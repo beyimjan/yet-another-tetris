@@ -1,6 +1,7 @@
 #include "tetris.h"
 #include <ncurses.h>
 #include "blocks.h"
+#include "clock.h"
 #include "constants.h"
 
 static void field_window_initialize(WINDOW **field_window)
@@ -26,7 +27,7 @@ void play_tetris()
   WINDOW *field_window;
 
   int field[field_height][field_width] = {0};
-  int ch, create_new_block = 1;
+  int ch, move_down_due_to_delay, create_new_block = 1;
   block_t block;
 
   initscr();
@@ -46,10 +47,18 @@ void play_tetris()
     }
 
     ch = wgetch(field_window);
+    if (milliseconds_elapsed(&block.moved_down_at) >= drop_delay &&
+        ch != ERR && ch != KEY_DOWN) {
+      move_down_due_to_delay = 1;
+    }
+    else {
+      move_down_due_to_delay = 0;
+    }
+
     switch (ch) {
       case ERR:
       case KEY_DOWN:
-        block_move(field_window, &block, 0, 1);
+        block_move_down(field_window, &block);
         break;
       case ' ':
         block_rotate(field_window, &block, 1);
@@ -61,6 +70,9 @@ void play_tetris()
         block_move(field_window, &block, 1, 0);
         break;
     }
+
+    if (move_down_due_to_delay)
+      block_move_down(field_window, &block);
   }
 
   endwin();

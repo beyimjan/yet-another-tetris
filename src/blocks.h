@@ -2,6 +2,7 @@
 #define TETROMINOES_H_SENTRY
 
 #include <ncurses.h>
+#include <sys/time.h>
 
 typedef int (*block_squares_t)[2];
 typedef enum {
@@ -18,6 +19,7 @@ typedef struct {
   block_type_t type;
   int x, y, angle;
   block_squares_t squares;
+  struct timeval moved_down_at;
 } block_t;
 
 void block_new(block_t *block);
@@ -27,5 +29,6 @@ void block_hide(WINDOW *win, block_t block);
 
 void block_rotate(WINDOW *win, block_t *block, int clockwise);
 void block_move(WINDOW *win, block_t *block, int x, int y);
+void block_move_down(WINDOW *win, block_t *block);
 
 #endif
