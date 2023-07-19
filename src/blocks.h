@@ -26,5 +26,6 @@ void block_show(WINDOW *win, block_t block);
 void block_hide(WINDOW *win, block_t block);
 
 void block_rotate(WINDOW *win, block_t *block, int clockwise);
+void block_move(WINDOW *win, block_t *block, int x, int y);
 
 #endif

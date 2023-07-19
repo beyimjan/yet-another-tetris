@@ -54,7 +54,7 @@ static void block_squares_copy(block_squares_t dest, block_squares_t src)
 void block_new(block_t *block)
 {
   block->type = rand() % blocks_count;
-  block->x = (field_width - tetromino) / 2;
+  block->x = field_width / 2;
   block->y = 0;
   block->angle = 0;
   block->squares = malloc(tetromino * sizeof(*block->squares));
@@ -68,10 +68,12 @@ void block_delete(block_t block)
 
 static void block_print(WINDOW *win, block_t block, const char *str)
 {
-  int i;
+  int i, y;
   for (i = 0; i < tetromino; i++) {
-    wmove(win, block.y + block.squares[i][1] + 2,
-          (block.x + block.squares[i][0] + 2) * square_width);
+    y = block.y + block.squares[i][1];
+    if (y < 0)
+      continue;
+    wmove(win, y, (block.x + block.squares[i][0]) * square_width + 1);
     waddstr(win, str);
   }
   wrefresh(win);
@@ -103,6 +105,27 @@ void block_rotate(WINDOW *win, block_t *block, int clockwise)
   }
 
   block_squares_copy(block->squares, blocks[block->type][block->angle]);
+
+  block_show(win, *block);
+}
+
+void block_move(WINDOW *win, block_t *block, int x, int y)
+{
+  int i, old_x = block->x, old_y = block->y;
+
+  block_hide(win, *block);
+
+  block->x += x;
+  block->y += y;
+  for (i = 0; i < tetromino; i++) {
+    if (block->y + block->squares[i][1] >= field_height ||
+        block->x + block->squares[i][0] < 0 ||
+        block->x + block->squares[i][0] >= field_width) {
+      block->x = old_x;
+      block->y = old_y;
+      break;
+    }
+  }
 
   block_show(win, *block);
 }

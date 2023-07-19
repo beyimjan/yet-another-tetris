@@ -13,10 +13,10 @@ static void field_window_initialize(WINDOW **field_window)
   y = (LINES - field_height) / 2;
 
   mvvline(y, x - 1, '<', field_height + 1);
-  mvvline(y, x + field_width * 2, '>', field_height + 1);
+  mvvline(y, x + field_width * 2 + 2, '>', field_height + 1);
   refresh();
 
-  *field_window = newwin(field_height + 1, field_width * 2, y, x);
+  *field_window = newwin(field_height + 1, field_width * 2 + 2, y, x);
   wborder(*field_window, '!', '!', ' ', '=', '!', '!', '!', '!');
   wrefresh(*field_window);
 }
@@ -47,15 +47,16 @@ void play_tetris()
     ch = wgetch(field_window);
     switch (ch) {
       case ' ':
-        block_hide(field_window, block);
-        block_delete(block);
-        create_new_block = 1;
-        break;
-      case KEY_UP:
         block_rotate(field_window, &block, 1);
         break;
       case KEY_DOWN:
-        block_rotate(field_window, &block, 0);
+        block_move(field_window, &block, 0, 1);
+        break;
+      case KEY_LEFT:
+        block_move(field_window, &block, -1, 0);
+        break;
+      case KEY_RIGHT:
+        block_move(field_window, &block, 1, 0);
         break;
     }
   }
