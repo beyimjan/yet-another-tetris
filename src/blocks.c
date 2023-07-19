@@ -1,6 +1,7 @@
 #include "blocks.h"
 #include <ncurses.h>
 #include <stdlib.h>
+#include "clock.h"
 #include "constants.h"
 
 static const char square[] = "[]";
