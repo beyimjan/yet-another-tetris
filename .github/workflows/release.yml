@@ -1,0 +1,59 @@
+name: Build and upload release asset
+
+on:
+  release:
+    types: published
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, macos-12]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install build dependencies (Linux)
+      if: ${{ runner.os == 'Linux' }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libncurses-dev libc6-dev
+
+    - name: Install build dependencies (macOS)
+      if: ${{ runner.os == 'macOS' }}
+      run: |
+        brew install make
+
+    - name: Build binary (Linux)
+      if: ${{ runner.os == 'Linux' }}
+      run: |
+        make build -C src/
+
+    - name: Build binary (macOS)
+      if: ${{ runner.os == 'macOS' }}
+      run: |
+        make macos -C src/
+
+    - name: Create release asset
+      run: |
+        ARCHIVE_EXT=tar.gz
+        if [ ${{ runner.os }} = 'Linux' ]; then
+          ARCHIVE_NAME="yet-another-tetris-${{ github.event.release.tag_name }}-linux-amd64"
+        elif [ ${{ runner.os }} = 'macOS' ]; then
+          ARCHIVE_NAME="yet-another-tetris-${{ github.event.release.tag_name }}-macos-amd64"
+        fi
+
+        mkdir $ARCHIVE_NAME/
+        cp LICENSE src/tetris $ARCHIVE_NAME/
+
+        tar -czvf $ARCHIVE_NAME.$ARCHIVE_EXT $ARCHIVE_NAME/
+
+        echo "RELEASE_ASSET=$ARCHIVE_NAME.$ARCHIVE_EXT" >> "$GITHUB_ENV"
+
+    - name: Upload release asset
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release upload ${{ github.event.release.tag_name }} "$RELEASE_ASSET"
