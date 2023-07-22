@@ -1,5 +1,5 @@
-#ifndef TETROMINOES_H_SENTRY
-#define TETROMINOES_H_SENTRY
+#ifndef BLOCKS_H_SENTRY
+#define BLOCKS_H_SENTRY
 
 #include <ncurses.h>
 #include <sys/time.h>

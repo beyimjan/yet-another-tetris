@@ -76,20 +76,17 @@ void play_tetris()
   int i, game_over = 0;
   block_t block;
 
-  initscr();
-  cbreak();
-  curs_set(0);
-  noecho();
-
   field_window_initialize(&field_window);
 
   keypad(field_window, TRUE);
   wtimeout(field_window, drop_delay);
   for (;;) {
     if (game_over) {
+      block_delete(block);
+
       mvprintw(0, (COLS - 10) / 2, "Game Over!");
       refresh();
-      napms(2000);
+      napms(3000);
       break;
     }
 
@@ -141,5 +138,5 @@ void play_tetris()
     remove_completed_lines(field_window, field, block);
   }
 
-  endwin();
+  delwin(field_window);
 }
