@@ -1,7 +1,14 @@
 CC = gcc
 
-CFLAGS = -g -Wall -Wextra
+ifeq (build, $(MAKECMDGOALS))
+CFLAGS = -static
+LDFLAGS = -lncurses -ltinfo
+else
 LDFLAGS = -lncurses
+ifneq (macos, $(MAKECMDGOALS))
+CFLAGS = -g -Wall -Wextra
+endif
+endif
 
 SRCS = $(filter-out main.c, $(wildcard *.c))
 OBJS = $(SRCS:.c=.o)
@@ -9,6 +16,10 @@ OBJS = $(SRCS:.c=.o)
 PROG = tetris
 
 all: $(PROG)
+
+build: clean $(PROG)
+
+macos: clean $(PROG)
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -21,9 +32,9 @@ deps.mk: $(SRCS)
 	$(CC) -MM $^ > $@
 
 $(PROG): main.c $(OBJS)
-	$(CC) $^ $(LDFLAGS) -o $@
+	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 clean:
 	rm -rf *.o $(PROG) deps.mk
 
-.PHONY = all clean
+.PHONY = all build clean
