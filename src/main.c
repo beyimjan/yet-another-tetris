@@ -17,10 +17,9 @@ int main()
 
   srand(time(NULL));
 
-  initscr();
   cbreak();
-  curs_set(0);
   noecho();
+  curs_set(0);
 
   play_tetris();
 
